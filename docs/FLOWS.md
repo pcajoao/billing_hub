@@ -46,25 +46,30 @@ How we change gateways without stopping billing and without bothering the custom
 
 ```mermaid
 flowchart TD
-    Inicio([Start Migration]) --> Exportar[Get data from Asaas]
-    Exportar --> Importar["Save in BillingHub (mark as 'Source: Asaas')"]
+    classDef default fill:#fff,stroke:#333,stroke-width:1px,color:#000;
+    classDef phase fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#000;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
+    classDef action fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
+
+    Inicio([Start Migration]):::phase --> Exportar[Get data from Asaas]:::action
+    Exportar --> Importar["Save in BillingHub (mark as 'Source: Asaas')"]:::action
     
-    Importar --> TemCartao{Has card saved?}
+    Importar --> TemCartao{Has card saved?}:::decision
     
-    TemCartao -- Yes --> MigrarToken[Ask Asaas to send Tokens to Pagar.me]
-    MigrarToken --> SalvarToken["Save new Tokens in BillingHub"]
-    SalvarToken --> FaseSombra[Shadow Phase]
+    TemCartao -- Yes --> MigrarToken[Ask Asaas to send Tokens to Pagar.me]:::action
+    MigrarToken --> SalvarToken["Save new Tokens in BillingHub"]:::action
+    SalvarToken --> FaseSombra[Shadow Phase]:::phase
     
-    TemCartao -- No --> PedirCartao["Send email asking for new card"]
+    TemCartao -- No --> PedirCartao["Send email asking for new card"]:::action
     
-    FaseSombra -->|New Subscriptions| PagarMe[Charge in Pagar.me]
-    FaseSombra -->|Old Subscriptions| Asaas[Continue charging in Asaas]
+    FaseSombra -->|New Subscriptions| PagarMe[Charge in Pagar.me]:::action
+    FaseSombra -->|Old Subscriptions| Asaas[Continue charging in Asaas]:::action
     
-    Asaas --> DiaD{Is it Key Turn Day?}
-    DiaD -- Yes --> DesligaAsaas[Stop charging in Asaas]
-    DesligaAsaas --> LigaPagarMe[Start charging old ones in Pagar.me]
+    Asaas --> DiaD{Is it Key Turn Day?}:::decision
+    DiaD -- Yes --> DesligaAsaas[Stop charging in Asaas]:::action
+    DesligaAsaas --> LigaPagarMe[Start charging old ones in Pagar.me]:::action
     
-    LigaPagarMe --> Fim([End! All unified])
+    LigaPagarMe --> Fim([End! All unified]):::phase
 ```
 
 ### The Strategy (The Secret Sauce)

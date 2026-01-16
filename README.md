@@ -87,12 +87,13 @@ We have added detailed READMEs in specific directories to explain their internal
 
 ```mermaid
 flowchart LR
-    %% Styles matching the reference "look"
-    classDef actor fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:10,ry:10;
-    classDef layer fill:#f9f9f9,stroke:#9e9e9e,stroke-width:2px,rx:10,ry:10;
-    classDef component fill:#ffffff,stroke:#333,stroke-width:1px,rx:5,ry:5;
-    classDef db fill:#004d40,stroke:#004d40,stroke-width:2px,color:#fff,shape:cylinder;
-    classDef ext fill:#1565c0,stroke:#0d47a1,stroke-width:2px,color:#fff,rx:20,ry:20;
+    %% Styles matching the reference "look" (High Contrast / Black Text)
+    classDef actor fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:10,ry:10,color:#000;
+    classDef layer fill:#f9f9f9,stroke:#9e9e9e,stroke-width:2px,rx:10,ry:10,color:#000;
+    classDef component fill:#ffffff,stroke:#333,stroke-width:1px,rx:5,ry:5,color:#000;
+    %% Changed DB/Ext to lighter backgrounds so black text is readable
+    classDef db fill:#b2dfdb,stroke:#004d40,stroke-width:2px,color:#000,shape:cylinder;
+    classDef ext fill:#bbdefb,stroke:#0d47a1,stroke-width:2px,color:#000,rx:20,ry:20;
 
     %% Left Column: Users/Actors
     subgraph Clients ["👥 External Actors"]
@@ -161,10 +162,15 @@ flowchart LR
     Jobs <--> |Persist/Fetch| Redis
     Adapters <--> |HTTP Request| PagarMe
 
-    %% Layer Visuals
-    style Layer1 fill:#eceff1,stroke:#cfd8dc
-    style Layer2 fill:#fff3e0,stroke:#ffe0b2
-    style Layer3 fill:#e8f5e9,stroke:#c8e6c9
+    %% Layer Visuals (Force Black Text on Light Backgrounds)
+    style Layer1 fill:#eceff1,stroke:#cfd8dc,color:#000
+    style Layer2 fill:#fff3e0,stroke:#ffe0b2,color:#000
+    style Layer3 fill:#e8f5e9,stroke:#c8e6c9,color:#000
+
+    %% Outer Containers (Force White Text on Dark/Neutral Backgrounds if needed)
+    %% Assuming dark theme IDE, these might already be white, but let's be safe.
+    %% We won't force fill to avoid clashing with IDE theme, but we ensure text is visible if we were to set it.
+    %% For now, focusing on the reported "white text" issue which is usually the Inner Layers.
 ```
 
 ### Adapter Pattern

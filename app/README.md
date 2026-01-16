@@ -21,30 +21,35 @@ The following diagram illustrates how Controllers delegate work to Services, whi
 
 ```mermaid
 graph TD
+    classDef default fill:#fff,stroke:#333,stroke-width:1px,color:#000;
+    classDef controller fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000;
+    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000;
+    classDef data fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px,color:#000;
+
     %% Controllers (Entry Points)
     subgraph Controllers
-        IC[InvoicesController]
-        WC[WebhooksController]
+        IC[InvoicesController]:::controller
+        WC[WebhooksController]:::controller
     end
 
     %% Services (Logic)
     subgraph Services
-        PIS[Billing::ProcessInvoiceService]
-        MAS[Customers::MigrateFromAsaasService]
-        GW[Gateways::*]
+        PIS[Billing::ProcessInvoiceService]:::service
+        MAS[Customers::MigrateFromAsaasService]:::service
+        GW[Gateways::*]:::service
     end
 
     %% Jobs (Async)
     subgraph Jobs
-        PWJ[ProcessWebhookJob]
+        PWJ[ProcessWebhookJob]:::service
     end
 
     %% Models (Data)
     subgraph Models
-        Inv[Invoice]
-        Tra[Transaction]
-        Cust[Customer]
-        GE[GatewayEvent]
+        Inv[Invoice]:::data
+        Tra[Transaction]:::data
+        Cust[Customer]:::data
+        GE[GatewayEvent]:::data
     end
 
     %% Relationships
