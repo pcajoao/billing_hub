@@ -162,15 +162,19 @@ flowchart LR
     Jobs <--> |Persist/Fetch| Redis
     Adapters <--> |HTTP Request| PagarMe
 
+    %% Force Vertical Stacking/Spacing (Ghost Edges)
+    %% This prevents nodes from floating around or overlapping
+    API_G ~~~ Auth ~~~ Controllers
+    InvService ~~~ MigService ~~~ Jobs
+    Models ~~~ Apartment ~~~ Adapters
+    PG ~~~ PagarMe ~~~ Redis
+
     %% Layer Visuals (Force Black Text on Light Backgrounds)
     style Layer1 fill:#eceff1,stroke:#cfd8dc,color:#000
     style Layer2 fill:#fff3e0,stroke:#ffe0b2,color:#000
     style Layer3 fill:#e8f5e9,stroke:#c8e6c9,color:#000
 
-    %% Outer Containers (Force White Text on Dark/Neutral Backgrounds if needed)
-    %% Assuming dark theme IDE, these might already be white, but let's be safe.
-    %% We won't force fill to avoid clashing with IDE theme, but we ensure text is visible if we were to set it.
-    %% For now, focusing on the reported "white text" issue which is usually the Inner Layers.
+    %% Outer Containers
 ```
 
 ### Adapter Pattern
