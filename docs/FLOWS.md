@@ -72,10 +72,10 @@ flowchart TD
     LigaPagarMe --> Fim([End! All unified]):::phase
 ```
 
-### The Strategy (The Secret Sauce)
+### The Strategy
 
 1.  **Transparent Migration:** We will use data portability (PCI) to migrate cards directly between Asaas and Pagar.me. The customer won't even notice the processor change.
-2.  **Shadow Phase (Shadow Billing):** We won't flip the switch on day 1.
+2.  **Shadow Phase (Shadow Billing):**
     *   New customer? Goes directly to Pagar.me.
     *   Old customer? Stays on Asaas for a while, to ensure the new system is stable.
 3.  **Key Turn Day:** When we are confident, we "turn off" charges in Asaas and activate in Pagar.me for old customers.
