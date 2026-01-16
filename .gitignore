@@ -39,3 +39,5 @@
 # Ignore IDE settings
 .idea
 .vscode
+
+.agent
