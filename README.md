@@ -71,9 +71,101 @@ To understand the architecture, flows, and data models, consult the `docs/` fold
 > - **VS Code / Windsurf:** Install the **"Markdown Preview Mermaid Support"** extension.
 > - **GitHub/GitLab:** Render natively.
 
+### 🧭 Directory Navigation (Micro-Docs)
+We have added detailed READMEs in specific directories to explain their internal structure:
+
+| Directory | Content |
+| :--- | :--- |
+| **[app/README.md](app/README.md)** | **Architecture Diagram**, Controllers, Services, and Models tree. |
+| **[config/README.md](config/README.md)** | Configuration details, Key Initializers (Gateways, Multi-tenancy). |
+| **[db/README.md](db/README.md)** | Schema design, Migrations, and Seeds information. |
+| **[spec/README.md](spec/README.md)** | Testing guide, Factories explanation, and RSpec setup. |
+
 ---
 
 ## 🏛 Architecture and Patterns
+
+```mermaid
+flowchart LR
+    %% Styles matching the reference "look"
+    classDef actor fill:#e1f5fe,stroke:#01579b,stroke-width:2px,rx:10,ry:10;
+    classDef layer fill:#f9f9f9,stroke:#9e9e9e,stroke-width:2px,rx:10,ry:10;
+    classDef component fill:#ffffff,stroke:#333,stroke-width:1px,rx:5,ry:5;
+    classDef db fill:#004d40,stroke:#004d40,stroke-width:2px,color:#fff,shape:cylinder;
+    classDef ext fill:#1565c0,stroke:#0d47a1,stroke-width:2px,color:#fff,rx:20,ry:20;
+
+    %% Left Column: Users/Actors
+    subgraph Clients ["👥 External Actors"]
+        direction TB
+        PMS["🏨 External Products<br/>(PMS / Booking Engine)"]:::actor
+        Webhook["🪝 Gateway Webhooks<br/>(Async Notifications)"]:::actor
+    end
+
+    %% Center Column: The System Structure
+    subgraph System ["🏦 BillingHub Application"]
+        direction TB
+        
+        %% Top Layer: Web/Interface
+        subgraph Layer1 ["1. Interface Layer (Web Element)"]
+            direction TB
+            API_G["🌐 API Routes / Gateway"]:::component
+            Auth["🛡️ Authentication Strategy"]:::component
+            Controllers["🎮 Thin Controls<br/>(Invoices/Webhooks)"]:::component
+        end
+
+        %% Mid Layer: Business Logic
+        subgraph Layer2 ["2. Service Layer (EJB/Command Element)"]
+            direction TB
+            InvService["⚡ ProcessInvoiceService<br/>(Orchestrator)"]:::component
+            MigService["🔄 MigrationService<br/>(Asaas -> Pagar.me)"]:::component
+            Jobs["⏳ Background Jobs<br/>(Sidekiq Workers)"]:::component
+        end
+
+        %% Bottom Layer: Data & Access
+        subgraph Layer3 ["3. Domain & Data Layer"]
+            direction TB
+            Models["📦 Active Record Models<br/>(Invoice, Transaction)"]:::component
+            Apartment["🏢 Tenant Router<br/>(Apartment Gem)"]:::component
+            Adapters["🔌 Gateway Adapters<br/>(Unified Interface)"]:::component
+        end
+    end
+
+    %% Right Column: Infra & External
+    subgraph Infra ["🏗️ Infrastructure & Services"]
+        direction TB
+        PG[(PostgreSQL<br/>Multi-Schema)]:::db
+        Redis[(Redis<br/>Job Queue)]:::db
+        PagarMe("💳 Pagar.me API<br/>(External Service)"):::ext
+    end
+
+    %% Connections
+    PMS <--> |HTTPS JSON| API_G
+    Webhook --> |POST| API_G
+
+    API_G --> Auth
+    Auth --> Controllers
+    
+    Controllers --> |Call| InvService
+    Controllers --> |Call| MigService
+    Controllers --> |Enqueue| Jobs
+
+    Jobs -.-> |Retry/Async| InvService
+
+    InvService <--> Models
+    InvService --> Adapters
+    MigService <--> Models
+
+    Models <--> Apartment
+    Apartment <--> |Schema Switch| PG
+    
+    Jobs <--> |Persist/Fetch| Redis
+    Adapters <--> |HTTP Request| PagarMe
+
+    %% Layer Visuals
+    style Layer1 fill:#eceff1,stroke:#cfd8dc
+    style Layer2 fill:#fff3e0,stroke:#ffe0b2
+    style Layer3 fill:#e8f5e9,stroke:#c8e6c9
+```
 
 ### Adapter Pattern
 Translation layer between BillingHub and Gateways (Pagar.me, Asaas). Located in `app/gateways`. Allows switching providers without altering core business logic.
