@@ -6,7 +6,7 @@ This document serves as a technical roadmap to present the BillingHub architectu
 BillingHub is a **Centralized Financial Orchestration API**.
 The goal is to decouple billing logic from products (PMS, Booking Engine) and centralize integration with Payment Gateways.
 
-**Stack:** Ruby on Rails 8 (API Mode), PostgreSQL, Redis/Sidekiq.
+**Stack:** Ruby on Rails 7.1.0 (API Mode), PostgreSQL, Redis/Sidekiq.
 
 ---
 
@@ -48,13 +48,15 @@ The database was designed for **Financial Immutability**:
 
 ## 4. Critical Flows
 
-### A) Billing Flow (Idempotent)
-1. `ProcessInvoiceService` is called.
-2. Opens a **Database Lock** on the Invoice (`with_lock`) to avoid race conditions.
-3. Checks preconditions (pending status, default payment method).
-4. Calls `CURRENT_GATEWAY::Charge.call`.
-5. **If Success:** Creates Transaction(paid), updates Invoice status(paid).
-6. **If Failure:** Creates Transaction(refused), returns error.
+### A) Billing Flow (Asynchronous & Idempotent)
+1.  **Request:** PMS sends a charge request.
+2.  **Queuing:** API creates a "Pending" Invoice and pushes `ProcessInvoiceJob` to Sidekiq (to ensure high availability).
+3.  **Execution (Job):**
+    *   Opens a **Database Lock** on the Invoice (`with_lock`) to avoid race conditions.
+    *   Checks preconditions (pending status, default payment method).
+    *   Calls `CURRENT_GATEWAY::Charge.call`.
+4.  **If Success:** Creates Transaction(paid), updates Invoice status(paid).
+5.  **If Failure:** Creates Transaction(refused), returns/logs error.
 
 ### B) Webhook Pipeline (Asynchronous)
 1. **Ingestion:** `WebhooksController` receives POST from Pagar.me.
