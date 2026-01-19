@@ -74,7 +74,7 @@ BillingHub does not touch sensitive data.
 1. We request secure export (PGP Key) from Asaas.
 2. Asaas sends encrypted data directly to Pagar.me.
 3. Pagar.me imports and generates new Tokens (`gateway_id`).
-4. **BillingHub:** Receives "De-Para" file and runs a script (`Customers::MigrateFromAsaasService`) to update `PaymentMethods` table with new tokens.
+4. **BillingHub:** Receives "Mapping" file and runs a script (`Customers::MigrateFromAsaasService`) to update `PaymentMethods` table with new tokens.
 
 ### B) Shadow Billing (Shadow Phase)
 During transition, we operate in hybrid mode:

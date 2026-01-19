@@ -51,25 +51,25 @@ flowchart TD
     classDef decision fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#000;
     classDef action fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#000;
 
-    Inicio([Start Migration]):::phase --> Exportar[Get data from Asaas]:::action
-    Exportar --> Importar["Save in BillingHub (mark as 'Source: Asaas')"]:::action
+    Start([Start Migration]):::phase --> Export[Get data from Asaas]:::action
+    Export --> Import["Save in BillingHub (mark as 'Source: Asaas')"]:::action
     
-    Importar --> TemCartao{Has card saved?}:::decision
+    Import --> HasCard{Has card saved?}:::decision
     
-    TemCartao -- Yes --> MigrarToken[Ask Asaas to send Tokens to Pagar.me]:::action
-    MigrarToken --> SalvarToken["Save new Tokens in BillingHub"]:::action
-    SalvarToken --> FaseSombra[Shadow Phase]:::phase
+    HasCard -- Yes --> MigrateToken[Ask Asaas to send Tokens to Pagar.me]:::action
+    MigrateToken --> SaveToken["Save new Tokens in BillingHub"]:::action
+    SaveToken --> ShadowPhase[Shadow Phase]:::phase
     
-    TemCartao -- No --> PedirCartao["Send email asking for new card"]:::action
+    HasCard -- No --> RequestCard["Send email asking for new card"]:::action
     
-    FaseSombra -->|New Subscriptions| PagarMe[Charge in Pagar.me]:::action
-    FaseSombra -->|Old Subscriptions| Asaas[Continue charging in Asaas]:::action
+    ShadowPhase -->|New Subscriptions| PagarMe[Charge in Pagar.me]:::action
+    ShadowPhase -->|Old Subscriptions| Asaas[Continue charging in Asaas]:::action
     
-    Asaas --> DiaD{Is it Key Turn Day?}:::decision
-    DiaD -- Yes --> DesligaAsaas[Stop charging in Asaas]:::action
-    DesligaAsaas --> LigaPagarMe[Start charging old ones in Pagar.me]:::action
+    Asaas --> SwitchoverDate{Is it Key Turn Day?}:::decision
+    SwitchoverDate -- Yes --> DisableAsaas[Stop charging in Asaas]:::action
+    DisableAsaas --> EnablePagarMe[Start charging old ones in Pagar.me]:::action
     
-    LigaPagarMe --> Fim([End! All unified]):::phase
+    EnablePagarMe --> End([End! All unified]):::phase
 ```
 
 ### The Strategy
